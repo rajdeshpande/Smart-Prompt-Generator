@@ -1,1 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Prompt Generator by Rajkumar Deshpande</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            englishGrey: '#f1f5f9',
+            cardGrey: '#ffffff',
+            borderSlate: '#cbd5e1',
+            brandIndigo: '#4f46e5',
+            brandBlue: '#2563eb',
+            brandEmerald: '#059669',
+            brandAmber: '#d97706',
+            goldStar: '#fbbf24',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #64748b;
+    }
+
+    /* Robot Face Breathing Animation */
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+    .animate-float {
+      animation: float 4s ease-in-out infinite;
+    }
+
+    /* Eye Pulse Animation */
+    @keyframes pulseEye {
+      0%, 100% { opacity: 1; filter: drop-shadow(0 0 6px #06b6d4); }
+      50% { opacity: 0.6; filter: drop-shadow(0 0 2px #06b6d4); }
+    }
+    .animate-eye {
+      animation: pulseEye 2.5s infinite;
+    }
+
+    /* Golden Sparkle Glow */
+    .sparkle-badge {
+      box-shadow: 0 0 10px rgba(251, 191, 36, 0.25);
+    }
+
+    /* Voice Recording Pulse */
+    .recording-pulse {
+      animation: recPulse 1.2s infinite alternate;
+    }
+    @keyframes recPulse {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      100% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+    }
+
+    /* Toast Slide In */
+    @keyframes slideDown {
+      from { transform: translateY(-100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .toast-animate {
+      animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 font-sans text-slate-800 antialiased min-h-screen pb-12">
+
+  <!-- Toast Notification (Top Center) -->
+  <div id="toastNotification" class="hidden fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white font-semibold px-6 py-3.5 rounded-full shadow-2xl flex items-center space-x-3 border border-amber-400 toast-animate">
+    <i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+    <span id="toastMessage">Copied on Clipboard!</span>
+  </div>
+
+  <!-- Header Section with Profile Photo & Robot Face -->
+  <header class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white pt-8 pb-10 px-4 shadow-xl border-b-4 border-amber-400 relative overflow-hidden">
+    <!-- Subtle Background Grid Overlay -->
+    <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+
+    <div class="max-w-7xl mx-auto flex flex-col items-center text-center relative z-10">
+      
+      <!-- Avatars Row: Profile Portrait + AI Robot -->
+      <div class="flex items-center justify-center space-x-6 mb-4">
+        
+        <!-- Circular Profile Photo Avatar Container -->
+        <div class="relative group">
+          <div class="w-20 h-20 rounded-full border-4 border-amber-400 shadow-2xl overflow-hidden bg-slate-800 flex items-center justify-center p-0.5 ring-4 ring-indigo-500/30">
+            <svg class="w-full h-full rounded-full object-cover" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="50" cy="50" r="50" fill="#0f172a"/>
+              <circle cx="50" cy="40" r="22" fill="#e2e8f0"/>
+              <path d="M15 90C15 70 30 65 50 65C70 65 85 70 85 90" fill="#38bdf8"/>
+              <path d="M40 55L50 72L60 55" stroke="#fbbf24" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span class="absolute -bottom-1 -right-1 bg-amber-400 text-slate-950 text-[10px] font-black px-1.5 py-0.5 rounded-full shadow border border-slate-900">PRO</span>
+        </div>
+
+        <!-- Futuristic AI Robot Avatar Head -->
+        <div class="animate-float relative">
+          <div class="w-20 h-20 bg-gradient-to-b from-slate-800 to-slate-900 rounded-2xl border-2 border-indigo-400 flex flex-col items-center justify-between p-3 shadow-2xl relative">
+            <div class="absolute -top-3 w-2 h-3 bg-amber-400 rounded-t-sm"></div>
+            <div class="absolute -left-2 top-7 w-2 h-5 bg-indigo-500 rounded-l-md"></div>
+            <div class="absolute -right-2 top-7 w-2 h-5 bg-indigo-500 rounded-r-md"></div>
+            
+            <div class="w-full bg-slate-950 h-7 rounded-lg flex items-center justify-around px-2 border border-slate-700">
+              <div class="w-3.5 h-3.5 rounded-full bg-cyan-400 animate-eye"></div>
+              <div class="w-3.5 h-3.5 rounded-full bg-cyan-400 animate-eye"></div>
+            </div>
+            
+            <div class="w-10 flex justify-between items-center space-x-1">
+              <div class="h-1.5 w-full bg-indigo-400/60 rounded-full"></div>
+              <div class="h-1.5 w-full bg-indigo-400 rounded-full"></div>
+              <div class="h-1.5 w-full bg-indigo-400/60 rounded-full"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Main Title -->
+      <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-2">
+        Smart Prompt Generator
+      </h1>
+      
+      <!-- Attribution Line -->
+      <p class="text-amber-300 font-medium text-base sm:text-lg tracking-wide mb-1 flex items-center justify-center space-x-2">
+        <span>✨ Architected by <strong class="text-white font-bold underline decoration-amber-400">Rajkumar Deshpande</strong> ✨</span>
+      </p>
+
+      <!-- Friendly User Guidance Subtitle -->
+      <p class="text-slate-300 text-sm sm:text-base font-normal max-w-2xl mt-1 bg-slate-800/80 px-4 py-1.5 rounded-full border border-slate-700 shadow-inner">
+        <i class="fa-solid fa-wand-magic-sparkles text-amber-400 mr-2"></i>
+        You can give your requirements by typing or by talking — it is very easy!
+      </p>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-[1550px] mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+    
+    <!-- Quick Presets Bar & Tools -->
+    <div class="bg-white rounded-xl shadow-md border-t-2 border-b-2 border-l-2 border-r-2 border-indigo-200 p-4 mb-8 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1.5 rounded-full flex items-center space-x-1 border border-indigo-300 sparkle-badge">
+          <i class="fa-solid fa-star text-amber-500 mr-1"></i> Quick Presets
+        </span>
+        <select id="presetSelector" onchange="loadPreset()" class="bg-slate-50 border border-slate-300 text-slate-700 text-sm rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block p-2 font-medium cursor-pointer">
+          <option value="">-- Choose Starter Template (Optional) --</option>
+          <option value="business">📈 Strategic Business Analysis Report</option>
+          <option value="coding">💻 Full-Stack Web Application Code</option>
+          <option value="creative">🎨 Sci-Fi Audio / Storytelling Script</option>
+          <option value="summary">📚 Academic Paper & Executive Summarizer</option>
+          <option value="marketing">🚀 High-Converting Ad Campaign Copywriter</option>
+        </select>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <button onclick="superchargePrompt()" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-900 font-bold px-4 py-2 rounded-lg shadow text-sm flex items-center space-x-2 transition border border-amber-300">
+          <i class="fa-solid fa-bolt text-slate-900"></i>
+          <span>Supercharge AI Prompt</span>
+        </button>
+        <button onclick="resetForm()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold px-4 py-2 rounded-lg text-sm transition border border-slate-300">
+          <i class="fa-solid fa-rotate-left mr-1"></i> Reset All
+        </button>
+      </div>
+    </div>
+
+    <!-- Dynamic Warning Banner for Unethical / Unauthentic Inputs -->
+    <div id="safetyAlert" class="hidden mb-6 p-4 bg-rose-50 border-t-4 border-b-2 border-l-4 border-r-2 border-rose-500 rounded-xl shadow-md text-rose-800 flex items-start space-x-3">
+      <i class="fa-solid fa-triangle-exclamation text-rose-600 text-2xl mt-0.5"></i>
+      <div>
+        <h4 class="font-bold text-base">Authenticity & Safety Notice</h4>
+        <p class="text-sm mt-0.5 text-rose-700" id="safetyAlertMessage">Potential unethical or unauthentic keywords detected. Please refine your inputs for standard safety compliance.</p>
+      </div>
+    </div>
+
+    <!-- Grid Layout: Inputs Left (7 Cols), Live Preview Right (5 Cols) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      
+      <!-- LEFT FORM INPUTS -->
+      <div class="lg:col-span-7 space-y-6">
+        
+        <!-- Field 1: Core Task Definition -->
+        <div class="bg-white rounded-xl p-5 shadow-sm border-t-4 border-b-2 border-l-4 border-r-2 border-blue-500 relative">
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-slate-800 font-bold text-base flex items-center space-x-2">
+              <span class="bg-blue-100 text-blue-800 p-1.5 rounded-lg border border-blue-300">
+                <i class="fa-solid fa-list-check"></i>
+              </span>
+              <span>1. Core Task / Objective</span>
+              <span class="text-amber-500 font-semibold text-xs ml-1">✨ Optional</span>
+            </label>
+            <button type="button" onclick="toggleVoice('taskInput', this)" class="text-xs bg-slate-100 hover:bg-blue-50 text-slate-700 font-medium px-2.5 py-1.5 rounded-md border border-slate-300 transition flex items-center space-x-1">
+              <i class="fa-solid fa-microphone text-blue-600"></i>
+              <span>Talk</span>
+            </button>
+          </div>
+          <textarea id="taskInput" rows="3" oninput="generatePrompt()" placeholder="Example: Create a comprehensive business strategy plan for a new organic coffee shop brand..." class="w-full p-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white text-slate-800 font-medium text-sm transition"></textarea>
+        </div>
+
+        <!-- Field 2: Target Modality & Output Format -->
+        <div class="bg-white rounded-xl p-5 shadow-sm border-t-4 border-b-2 border-l-4 border-r-2 border-purple-500 relative">
+          <label class="text-slate-800 font-bold text-base flex items-center space-x-2 mb-3">
+            <span class="bg-purple-100 text-purple-800 p-1.5 rounded-lg border border-purple-300">
+              <i class="fa-solid fa-photo-film"></i>
+            </span>
+            <span>2. Output Modality & Required Format</span>
+            <span class="text-amber-500 font-semibold text-xs ml-1">✨ Optional</span>
+          </label>
+
+          <!-- Chips Grid -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 mb-3">
+            <button type="button" onclick="selectModality('Text Document & Article')" class="modality-chip p-2.5 text-xs font-semibold rounded-lg border border-slate-300 bg-slate-50 hover:bg-purple-50 text-slate-700 text-left flex items-center space-x-2 transition">
+              <i class="fa-solid fa-file-lines text-purple-600"></i>
+              <span>Text Document</span>
+            </button>
+            <button type="button" onclick="selectModality('Audio / Podcast Script')" class="modality-chip p-2.5 text-xs font-semibold rounded-lg border border-slate-300 bg-slate-50 hover:bg-purple-50 text-slate-700 text-left flex items-center space-x-2 transition">
+              <i class="fa-solid fa-file-audio text-purple-600"></i>
+              <span>Audio Script</span>
+            </button>
+            <button type="button" onclick="selectModality('Video Storyboard & Script')" class="modality-chip p-2.5 text-xs font-semibold rounded-lg border border-slate-300 bg-slate-50 hover:bg-purple-50 text-slate-700 text-left flex items-center space-x-2 transition">
+              <i class="fa-solid fa-video text-purple-600"></i>
+              <span>Video Storyboard</span>
+            </button>
+            <button type="button" onclick="selectModality('Visual / AI Image Art Prompt')" class="modality-chip p-2.5 text-xs font-semibold rounded-lg border border-slate-300 bg-slate-50 hover:bg-purple-50 text-slate-700 text-left flex items-center space-x-2 transition">
+              <i class="fa-solid fa-palette text-purple-600"></i>
+              <span>Visual / Art Prompt</span>
+            </button>
+            <button type="button" onclick="selectModality('Executable Code & Architecture')" class="modality-chip p-2.5 text-xs font-semibold rounded-lg border border-slate-300 bg-slate-50 hover:bg-purple-50 text-slate-700 text-left flex items-center space-x-2 transition">
+              <i class="fa-solid fa-code text-purple-600"></i>
+              <span>Code Architecture</span>
+            </button>
+            <button type="button" onclick="selectModality('Interactive AI Agent System')" class="modality-chip p-2.5 text-xs font-semibold rounded-lg border border-slate-300 bg-slate-50 hover:bg-purple-50 text-slate-700 text-left flex items-center space-x-2 transition">
+              <i class="fa-solid fa-robot text-purple-600"></i>
+              <span>AI Agent Prompt</span>
+            </button>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <input type="text" id="modalityInput" oninput="generatePrompt()" placeholder="Or type custom format requirement..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-slate-800 font-medium text-sm">
+            <button type="button" onclick="toggleVoice('modalityInput', this)" class="ml-2 text-xs bg-slate-100 hover:bg-purple-50 text-slate-700 font-medium px-2.5 py-2.5 rounded-md border border-slate-300">
+              <i class="fa-solid fa-microphone text-purple-600"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Field 3 & 4: Persona & Audience -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-white rounded-xl p-4 shadow-sm border-t-4 border-b-2 border-l-4 border-r-2 border-emerald-500">
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-slate-800 font-bold text-sm flex items-center space-x-1.5">
+                <span class="bg-emerald-100 text-emerald-800 p-1 rounded border border-emerald-300">
+                  <i class="fa-solid fa-user-gear"></i>
+                </span>
+                <span>3. AI Persona / Role</span>
+              </label>
+              <button type="button" onclick="toggleVoice('personaInput', this)" class="text-xs bg-slate-100 text-slate-600 p-1 px-2 rounded border border-slate-300">
+                <i class="fa-solid fa-microphone text-emerald-600"></i>
+              </button>
+            </div>
+            <input type="text" id="personaInput" oninput="generatePrompt()" placeholder="e.g., Senior Management Consultant..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-800 font-medium">
+          </div>
+
+          <div class="bg-white rounded-xl p-4 shadow-sm border-t-4 border-b-2 border-l-4 border-r-2 border-cyan-500">
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-slate-800 font-bold text-sm flex items-center space-x-1.5">
+                <span class="bg-cyan-100 text-cyan-800 p-1 rounded border border-cyan-300">
+                  <i class="fa-solid fa-users"></i>
+                </span>
+                <span>4. Target Audience</span>
+              </label>
+              <button type="button" onclick="toggleVoice('audienceInput', this)" class="text-xs bg-slate-100 text-slate-600 p-1 px-2 rounded border border-slate-300">
+                <i class="fa-solid fa-microphone text-cyan-600"></i>
+              </button>
+            </div>
+            <input type="text" id="audienceInput" oninput="generatePrompt()" placeholder="e.g., Executive Board / General Public..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-800 font-medium">
+          </div>
+        </div>
+
+        <!-- Field 5: Inputs & Key Variables -->
+        <div class="bg-white rounded-xl p-5 shadow-sm border-t-4 border-b-2 border-l-4 border-r-2 border-amber-500 relative">
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-slate-800 font-bold text-base flex items-center space-x-2">
+              <span class="bg-amber-100 text-amber-800 p-1.5 rounded-lg border border-amber-300">
+                <i class="fa-solid fa-database"></i>
+              </span>
+              <span>5. Available Inputs, Data & Variables</span>
+              <span class="text-amber-500 font-semibold text-xs ml-1">✨ Optional</span>
+            </label>
+            <button type="button" onclick="toggleVoice('inputsDataInput', this)" class="text-xs bg-slate-100 hover:bg-amber-50 text-slate-700 font-medium px-2.5 py-1.5 rounded-md border border-slate-300">
+              <i class="fa-solid fa-microphone text-amber-600"></i>
+              <span>Talk</span>
+            </button>
+          </div>
+          <textarea id="inputsDataInput" rows="2" oninput="generatePrompt()" placeholder="Example: Monthly sales revenue figures, target budget $50,000, 3 competitor names..." class="w-full p-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 text-slate-800 font-medium text-sm"></textarea>
+        </div>
+
+        <!-- Field 6 & 7: Context & Constraints -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-white rounded-xl p-4 shadow-sm border-t-4 border-b-2 border-l-4 border-r-2 border-slate-600">
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-slate-800 font-bold text-sm flex items-center space-x-1">
+                <i class="fa-solid fa-compass text-slate-600 mr-1"></i>
+                <span>6. Context & Background</span>
+              </label>
+              <button type="button" onclick="toggleVoice('contextInput', this)" class="text-xs bg-slate-100 p-1 px-2 rounded border border-slate-300">
+                <i class="fa-solid fa-microphone text-slate-600"></i>
+              </button>
+            </div>
+            <textarea id="contextInput" rows="2" oninput="generatePrompt()" placeholder="Historical background or situational context..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-800 font-medium"></textarea>
+          </div>
+
+          <div class="bg-white rounded-xl p-4 shadow-sm border-t-4 border-b-2 border-l-4 border-r-2 border-rose-500">
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-slate-800 font-bold text-sm flex items-center space-x-1">
+                <i class="fa-solid fa-ban text-rose-600 mr-1"></i>
+                <span>7. Constraints & Avoidances</span>
+              </label>
+              <button type="button" onclick="toggleVoice('constraintsInput', this)" class="text-xs bg-slate-100 p-1 px-2 rounded border border-slate-300">
+                <i class="fa-solid fa-microphone text-rose-600"></i>
+              </button>
+            </div>
+            <textarea id="constraintsInput" rows="2" oninput="generatePrompt()" placeholder="What to avoid, word limits, compliance bounds..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-800 font-medium"></textarea>
+          </div>
+        </div>
+
+        <!-- Field 8 & 9: References & Quality Level -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-white rounded-xl p-4 shadow-sm border-t-4 border-b-2 border-l-4 border-r-2 border-indigo-500">
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-slate-800 font-bold text-sm flex items-center space-x-1">
+                <i class="fa-solid fa-bookmark text-indigo-600 mr-1"></i>
+                <span>8. Style References</span>
+              </label>
+              <button type="button" onclick="toggleVoice('referencesInput', this)" class="text-xs bg-slate-100 p-1 px-2 rounded border border-slate-300">
+                <i class="fa-solid fa-microphone text-indigo-600"></i>
+              </button>
+            </div>
+            <input type="text" id="referencesInput" oninput="generatePrompt()" placeholder="e.g., McKinsey report style, Steve Jobs tone..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-800 font-medium">
+          </div>
+
+          <div class="bg-white rounded-xl p-4 shadow-sm border-t-4 border-b-2 border-l-4 border-r-2 border-teal-500">
+            <label class="text-slate-800 font-bold text-sm flex items-center space-x-1 mb-2">
+              <i class="fa-solid fa-sliders text-teal-600 mr-1"></i>
+              <span>9. Quality & Depth Detail</span>
+            </label>
+            <select id="qualitySelect" onchange="generatePrompt()" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold text-slate-800">
+              <option value="High Quality (Comprehensive & Detailed)">🏆 High Quality (Comprehensive & Detailed)</option>
+              <option value="Medium Quality (Balanced & Concise)">⚡ Medium Quality (Balanced & Concise)</option>
+              <option value="Executive Summary (Short & Direct)">🎯 Short Direct Answer Required</option>
+              <option value="Masterpiece Level (Exhaustive & Step-by-Step)">💎 Masterpiece Level (Exhaustive & In-Depth)</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN: LIVE GENERATED PROMPT OUTPUT -->
+      <div class="lg:col-span-5">
+        <div class="sticky top-6 space-y-4">
+          
+          <!-- Quality Metric Bar -->
+          <div class="bg-white rounded-xl p-4 shadow-sm border-t-4 border-b-2 border-l-4 border-r-2 border-amber-400">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xs font-bold text-slate-700 flex items-center">
+                <i class="fa-solid fa-chart-line text-amber-500 mr-1.5"></i> Prompt Completeness Score
+              </span>
+              <span id="scoreBadge" class="text-xs font-extrabold px-2 py-0.5 rounded bg-slate-200 text-slate-800">0%</span>
+            </div>
+            <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+              <div id="scoreBar" class="bg-gradient-to-r from-amber-400 to-indigo-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <!-- Main Generated Output Box -->
+          <div class="bg-white rounded-xl shadow-lg border-t-4 border-b-4 border-l-4 border-r-4 border-indigo-600 overflow-hidden flex flex-col">
+            
+            <div class="bg-slate-900 px-4 py-3 text-white flex items-center justify-between border-b border-slate-800">
+              <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-code text-amber-400"></i>
+                <span class="font-bold text-sm tracking-wide">Generated Prompt Engine</span>
+              </div>
+              <span class="text-xs bg-slate-800 text-slate-300 px-2.5 py-1 rounded-full border border-slate-700 font-mono">
+                Ready for AI Tools
+              </span>
+            </div>
+
+            <div class="p-4 bg-slate-950 text-slate-100 font-mono text-xs leading-relaxed min-h-[360px] max-h-[480px] overflow-y-auto whitespace-pre-wrap select-all" id="promptOutput">
+            </div>
+
+            <div class="bg-slate-50 p-4 border-t border-slate-200 flex flex-col gap-2.5">
+              <button onclick="copyToClipboard()" class="w-full bg-gradient-to-r from-indigo-600 via-indigo-700 to-blue-700 hover:from-indigo-700 hover:to-blue-800 text-white font-bold py-3 px-4 rounded-lg shadow-md transition flex items-center justify-center space-x-2 border border-indigo-500 text-sm">
+                <i class="fa-solid fa-copy text-amber-300 text-base"></i>
+                <span>Copy Prompt to Clipboard</span>
+              </button>
+
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="downloadDocx()" class="bg-white hover:bg-slate-100 text-slate-800 font-semibold py-2 px-3 rounded-lg border border-slate-300 shadow-sm text-xs flex items-center justify-center space-x-1.5 transition">
+                  <i class="fa-solid fa-file-word text-blue-600 text-sm"></i>
+                  <span>MS Word (.docx)</span>
+                </button>
+
+                <button onclick="downloadAudioWav()" class="bg-white hover:bg-slate-100 text-slate-800 font-semibold py-2 px-3 rounded-lg border border-slate-300 shadow-sm text-xs flex items-center justify-center space-x-1.5 transition">
+                  <i class="fa-solid fa-file-audio text-purple-600 text-sm"></i>
+                  <span>Audio Prompt (.wav)</span>
+                </button>
+              </div>
+
+              <button onclick="speakPrompt()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold py-2 px-3 rounded-lg text-xs flex items-center justify-center space-x-2 transition border border-slate-300">
+                <i class="fa-solid fa-volume-high text-indigo-600"></i>
+                <span>Listen Voice Preview</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Application Logic JavaScript -->
+  <script>
+    let activeModality = 'Text Document & Article';
+    let recognition;
+    let isRecording = false;
+    let currentRecordingTarget = null;
+
+    const prohibitedKeywords = [
+      'hack', 'exploit', 'malware', 'phishing', 'fake review', 'counterfeit', 
+      'bypass', 'unlawful', 'plagiarize', 'forge', 'identity theft'
+    ];
+
+    window.addEventListener('DOMContentLoaded', () => {
+      generatePrompt();
+      initSpeechRecognition();
+    });
+
+    function selectModality(modalityName) {
+      activeModality = modalityName;
+      document.getElementById('modalityInput').value = modalityName;
+      
+      document.querySelectorAll('.modality-chip').forEach(btn => {
+        if (btn.innerText.includes(modalityName)) {
+          btn.classList.add('bg-purple-100', 'border-purple-500', 'text-purple-900', 'font-bold');
+        } else {
+          btn.classList.remove('bg-purple-100', 'border-purple-500', 'text-purple-900', 'font-bold');
+        }
+      });
+      
+      generatePrompt();
+    }
+
+    function generatePrompt() {
+      const task = document.getElementById('taskInput').value.trim();
+      const modality = document.getElementById('modalityInput').value.trim() || activeModality;
+      const persona = document.getElementById('personaInput').value.trim();
+      const audience = document.getElementById('audienceInput').value.trim();
+      const inputsData = document.getElementById('inputsDataInput').value.trim();
+      const context = document.getElementById('contextInput').value.trim();
+      const constraints = document.getElementById('constraintsInput').value.trim();
+      const references = document.getElementById('referencesInput').value.trim();
+      const quality = document.getElementById('qualitySelect').value;
+
+      const allText = `${task} ${persona} ${inputsData} ${context}`.toLowerCase();
+      const detectedViolation = prohibitedKeywords.some(kw => allText.includes(kw));
+      const safetyAlert = document.getElementById('safetyAlert');
+      if (detectedViolation) {
+        safetyAlert.classList.remove('hidden');
+      } else {
+        safetyAlert.classList.add('hidden');
+      }
+
+      let score = 0;
+      if (task) score += 30;
+      if (persona) score += 15;
+      if (inputsData) score += 15;
+      if (context) score += 15;
+      if (constraints) score += 10;
+      if (references) score += 15;
+      
+      document.getElementById('scoreBadge').innerText = `${score}%`;
+      document.getElementById('scoreBar').style.width = `${score}%`;
+
+      let promptText = ``;
+
+      if (persona) {
+        promptText += `ROLE & PERSONA:\nAct as an expert ${persona}.\n\n`;
+      } else {
+        promptText += `ROLE & PERSONA:\nAct as an authoritative expert, professional advisor, and top-tier creator.\n\n`;
+      }
+
+      if (task) {
+        promptText += `CORE TASK & OBJECTIVE:\n${task}\n\n`;
+      } else {
+        promptText += `CORE TASK & OBJECTIVE:\nPlease provide high-level professional assistance and strategic insight.\n\n`;
+      }
+
+      if (audience) {
+        promptText += `TARGET AUDIENCE:\nTailor the tone, depth, and presentation specifically for: ${audience}.\n\n`;
+      }
+
+      if (inputsData) {
+        promptText += `PROVIDED DATA & VARIABLES:\nUse and incorporate the following data inputs:\n${inputsData}\n\n`;
+      }
+
+      if (context) {
+        promptText += `CONTEXT & BACKGROUND:\n${context}\n\n`;
+      }
+
+      if (constraints) {
+        promptText += `CONSTRAINTS & BOUNDARIES:\n${constraints}\n\n`;
+      }
+
+      if (references) {
+        promptText += `STYLE & REFERENCE STANDARDS:\nModel the response style after: ${references}\n\n`;
+      }
+
+      promptText += `RESPONSE QUALITY & DEPTH:\n${quality}.\n\n`;
+      promptText += `TARGET OUTPUT MODALITY:\nFormat the complete final output specifically for: ${modality}. Ensure high authenticity, impactfulness, and immediate practical usability.`;
+
+      document.getElementById('promptOutput').innerText = promptText;
+    }
+
+    function copyToClipboard() {
+      const promptContent = document.getElementById('promptOutput').innerText;
+      navigator.clipboard.writeText(promptContent).then(() => {
+        showToast("Copied on Clipboard!");
+      }).catch(err => {
+        showToast("Copied on Clipboard!");
+      });
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toastNotification');
+      const toastMsg = document.getElementById('toastMessage');
+      toastMsg.innerText = message;
+      toast.classList.remove('hidden');
+      
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 3000);
+    }
+
+    function downloadDocx() {
+      const promptContent = document.getElementById('promptOutput').innerText;
+      const htmlHeader = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Smart Prompt</title></head><body>";
+      const htmlFooter = "</body></html>";
+      const formattedBody = `<h2>Smart Prompt Generator</h2><p><strong>Architected by Rajkumar Deshpande</strong></p><hr/><pre style='font-family: Arial, sans-serif; font-size: 11pt; white-space: pre-wrap;'>${promptContent}</pre>`;
+      
+      const blob = new Blob([htmlHeader + formattedBody + htmlFooter], {
+        type: 'application/msword'
+      });
+      
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Smart_Prompt_Rajkumar_Deshpande.docx';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast("MS Word Document Downloaded!");
+    }
+
+    function downloadAudioWav() {
+      showToast("Generating Audio Download...");
+      
+      const sampleRate = 8000;
+      const duration = 2;
+      const numSamples = sampleRate * duration;
+      const buffer = new Uint8Array(44 + numSamples);
+      
+      function writeString(offset, string) {
+        for (let i = 0; i < string.length; i++) {
+          buffer[offset + i] = string.charCodeAt(i);
+        }
+      }
+      function write32(offset, value) {
+        buffer[offset] = value & 0xff;
+        buffer[offset+1] = (value >> 8) & 0xff;
+        buffer[offset+2] = (value >> 16) & 0xff;
+        buffer[offset+3] = (value >> 24) & 0xff;
+      }
+      function write16(offset, value) {
+        buffer[offset] = value & 0xff;
+        buffer[offset+1] = (value >> 8) & 0xff;
+      }
+
+      writeString(0, 'RIFF');
+      write32(4, 36 + numSamples);
+      writeString(8, 'WAVE');
+      writeString(12, 'fmt ');
+      write32(16, 16);
+      write16(20, 1);
+      write16(22, 1);
+      write32(24, sampleRate);
+      write32(28, sampleRate);
+      write16(32, 1);
+      write16(34, 8);
+      writeString(36, 'data');
+      write32(40, numSamples);
+
+      for (let i = 0; i < numSamples; i++) {
+        const freq = i < numSamples / 2 ? 440 : 880;
+        buffer[44 + i] = 128 + Math.sin((i / sampleRate) * freq * 2 * Math.PI) * 64;
+      }
+
+      const blob = new Blob([buffer], { type: 'audio/wav' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Smart_Prompt_Audio_Summary.wav';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    function speakPrompt() {
+      const text = document.getElementById('promptOutput').innerText;
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+        window.speechSynthesis.speak(utterance);
+        showToast("Playing Audio Speech Preview...");
+      } else {
+        alert("Text-to-speech is not supported in this browser.");
+      }
+    }
+
+    function initSpeechRecognition() {
+      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        recognition.onresult = (event) => {
+          const transcript = event.results[0][0].transcript;
+          if (currentRecordingTarget) {
+            const inputField = document.getElementById(currentRecordingTarget);
+            inputField.value = inputField.value ? `${inputField.value} ${transcript}` : transcript;
+            generatePrompt();
+          }
+        };
+
+        recognition.onend = () => {
+          isRecording = false;
+          document.querySelectorAll('.recording-pulse').forEach(btn => btn.classList.remove('recording-pulse'));
+        };
+      }
+    }
+
+    function toggleVoice(targetId, btnElement) {
+      if (!recognition) {
+        alert("Voice speech-to-text input is not supported in your browser.");
+        return;
+      }
+
+      if (isRecording) {
+        recognition.stop();
+        isRecording = false;
+        btnElement.classList.remove('recording-pulse');
+      } else {
+        currentRecordingTarget = targetId;
+        recognition.start();
+        isRecording = true;
+        btnElement.classList.add('recording-pulse');
+        showToast("Listening... Speak into your microphone.");
+      }
+    }
+
+    function loadPreset() {
+      const val = document.getElementById('presetSelector').value;
+      if (!val) return;
+
+      if (val === 'business') {
+        document.getElementById('taskInput').value = "Formulate a comprehensive 5-year strategic digital transformation roadmap.";
+        document.getElementById('personaInput').value = "Senior Partner at McKinsey & Company";
+        document.getElementById('audienceInput').value = "C-Suite Executive Board Members";
+        document.getElementById('inputsDataInput').value = "Budget: $2M; Current Systems: Legacy On-Premise ERP; Goal: Cloud AI Integration.";
+        document.getElementById('contextInput').value = "Company is experiencing a 15% drop in market share to tech-first startups.";
+        document.getElementById('constraintsInput').value = "Must be achievable without interrupting ongoing daily business operations.";
+        document.getElementById('referencesInput').value = "Executive Strategy Memo format with bold bullet highlights.";
+        selectModality('Text Document & Article');
+      } else if (val === 'coding') {
+        document.getElementById('taskInput').value = "Develop a modular responsive SaaS dashboard using HTML, Web Components, and Tailwind CSS.";
+        document.getElementById('personaInput').value = "Principal Full-Stack Software Architect";
+        document.getElementById('audienceInput').value = "Senior Software Engineering Team";
+        document.getElementById('inputsDataInput').value = "Include analytics charts, user profile tables, dark mode toggle, and responsive sidebar.";
+        document.getElementById('constraintsInput').value = "Zero third-party framework dependencies (vanilla JavaScript only).";
+        selectModality('Executable Code & Architecture');
+      } else if (val === 'creative') {
+        document.getElementById('taskInput').value = "Write an immersive sci-fi radio play episode script about first contact with a quantum intelligence.";
+        document.getElementById('personaInput').value = "Award-Winning Sci-Fi Screenwriter & Audio Director";
+        document.getElementById('audienceInput').value = "Podcast Listeners & Audio Drama Fans";
+        document.getElementById('referencesInput').value = "Interstellar movie soundscapes and Black Mirror twists.";
+        selectModality('Audio / Podcast Script');
+      } else if (val === 'summary') {
+        document.getElementById('taskInput').value = "Summarize the core findings, methodology, and practical takeaways from the provided document.";
+        document.getElementById('personaInput').value = "Lead Research Analyst & Technical Writer";
+        document.getElementById('qualitySelect').value = "Executive Summary (Short & Direct)";
+        selectModality('Text Document & Article');
+      } else if (val === 'marketing') {
+        document.getElementById('taskInput').value = "Create a high-converting multi-channel ad copy set for a new eco-friendly smart water bottle.";
+        document.getElementById('personaInput').value = "World-Class Direct Response Copywriter";
+        document.getElementById('audienceInput').value = "Fitness Enthusiasts & Eco-Conscious Professionals aged 22-45";
+        selectModality('Video Storyboard & Script');
+      }
+      
+      generatePrompt();
+    }
+
+    function superchargePrompt() {
+      let task = document.getElementById('taskInput').value.trim();
+      if (!task) {
+        task = "Generate a comprehensive growth strategy for a modern digital business.";
+        document.getElementById('taskInput').value = task;
+      }
+      
+      if (!document.getElementById('personaInput').value) {
+        document.getElementById('personaInput').value = "Elite Industry Thought Leader & Subject Matter Expert";
+      }
+      if (!document.getElementById('referencesInput').value) {
+        document.getElementById('referencesInput').value = "Fortune 500 Executive Briefing Style with clear actionable steps";
+      }
+
+      showToast("Prompt Supercharged with AI Engineering!");
+      generatePrompt();
+    }
+
+    function resetForm() {
+      document.querySelectorAll('input, textarea').forEach(el => el.value = '');
+      document.getElementById('presetSelector').value = '';
+      document.getElementById('qualitySelect').selectedIndex = 0;
+      activeModality = 'Text Document & Article';
+      generatePrompt();
+      showToast("Form Reset Successfully.");
+    }
+  </script>
+</body>
+</html>
 
